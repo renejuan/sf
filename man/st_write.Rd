@@ -26,13 +26,12 @@ st_write(obj, dsn, layer, ...)
   factorsAsCharacter = TRUE,
   update = NA,
   delete_dsn = FALSE,
-  delete_layer = FALSE,
   fid_column_name = NULL
 )
 
 \method{st_write}{data.frame}(obj, dsn, layer = NULL, ...)
 
-write_sf(..., quiet = TRUE, delete_layer = TRUE)
+write_sf(..., quiet = TRUE, update = FALSE)
 
 \S4method{dbWriteTable}{PostgreSQLConnection,character,sf}(
   conn,
@@ -95,9 +94,6 @@ be raised if the layer exists. See also next two arguments.}
 \item{delete_dsn}{logical; delete data source \code{dsn} before attempting 
 to write?}
 
-\item{delete_layer}{logical; delete layer \code{layer} before attempting to
-write?}
-
 \item{fid_column_name}{character, name of column with feature IDs; if
 specified, this column is no longer written as feature attribute.}
 
@@ -140,13 +136,13 @@ error is raised. If types don't match, behaviour is undefined: GDAL may
 raise warnings or errors or fail silently.
 
 When deleting layers or data sources is not successful, no error is emitted. 
-\code{delete_dsn} and \code{delete_layer} should be
-handled with care; the former may erase complete directories or databases.
+\code{delete_dsn} shlould be
+handled with care; it may erase complete directories or databases.
 }
 \examples{
 nc = st_read(system.file("shape/nc.shp", package="sf"))
 st_write(nc, paste0(tempdir(), "/", "nc.shp"))
-st_write(nc, paste0(tempdir(), "/", "nc.shp"), delete_layer = TRUE) # overwrites
+st_write(nc, paste0(tempdir(), "/", "nc.shp"), update = FALSE) # overwrites
 data(meuse, package = "sp") # loads data.frame from sp
 meuse_sf = st_as_sf(meuse, coords = c("x", "y"), crs = 28992)
 # writes X and Y as columns:

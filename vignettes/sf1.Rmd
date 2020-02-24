@@ -474,7 +474,7 @@ If we repeat this, we get an error message that the file already
 exists, and we can overwrite by
 
 ```{r}
-st_write(nc, "nc.shp", delete_layer = TRUE)
+st_write(nc, "nc.shp", update = FALSE)
 ```
 
 or its quiet alternative that does this by default,
@@ -554,8 +554,8 @@ creates, and has the following arguments to control update and delete:
 * `update=TRUE` causes an existing data source to be updated, if it
 exists; this options is by default `TRUE` for all database drivers,
 where the database is updated by adding a table.
-* `delete_layer=TRUE` causes `st_write` try to open the the data
-source and delete the layer; no errors are given if the data source is
+* `update=FALSE` causes `st_write` to try to create the data
+layer, overwriting if it exists; no errors are given if the data source is
 not present, or the layer does not exist in the data source.
 * `delete_dsn=TRUE` causes `st_write` to delete the data source when
 present, before writing the layer in a newly created data source. No

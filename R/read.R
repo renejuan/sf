@@ -323,8 +323,6 @@ abbreviate_shapefile_names = function(x) {
 #' be raised if the layer exists. See also next two arguments.
 #' @param delete_dsn logical; delete data source \code{dsn} before attempting 
 #' to write?
-#' @param delete_layer logical; delete layer \code{layer} before attempting to
-#' write?
 #' @param fid_column_name character, name of column with feature IDs; if
 #' specified, this column is no longer written as feature attribute.
 #' @details 
@@ -336,15 +334,15 @@ abbreviate_shapefile_names = function(x) {
 #' raise warnings or errors or fail silently.
 #' 
 #' When deleting layers or data sources is not successful, no error is emitted. 
-#' \code{delete_dsn} and \code{delete_layer} should be
-#' handled with care; the former may erase complete directories or databases.
+#' \code{delete_dsn} shlould be
+#' handled with care; it may erase complete directories or databases.
 #' @seealso \link{st_drivers}
 #' @return \code{obj}, invisibly; in case \code{obj} is of class \code{sfc}, 
 #' it is returned as an \code{sf} object.
 #' @examples
 #' nc = st_read(system.file("shape/nc.shp", package="sf"))
 #' st_write(nc, paste0(tempdir(), "/", "nc.shp"))
-#' st_write(nc, paste0(tempdir(), "/", "nc.shp"), delete_layer = TRUE) # overwrites
+#' st_write(nc, paste0(tempdir(), "/", "nc.shp"), update = FALSE) # overwrites
 #' data(meuse, package = "sp") # loads data.frame from sp
 #' meuse_sf = st_as_sf(meuse, coords = c("x", "y"), crs = 28992)
 #' # writes X and Y as columns:
@@ -376,7 +374,7 @@ st_write.sfc = function(obj, dsn, layer, ...) {
 st_write.sf = function(obj, dsn, layer = NULL, ...,
 		driver = guess_driver_can_write(dsn),
 		dataset_options = NULL, layer_options = NULL, quiet = FALSE, factorsAsCharacter = TRUE,
-		update = NA, delete_dsn = FALSE, delete_layer = FALSE, fid_column_name = NULL) {
+		update = NA, delete_dsn = FALSE, fid_column_name = NULL) {
 
 	if (missing(dsn))
 		stop("dsn should specify a data source or filename")
@@ -434,16 +432,16 @@ st_write.sf = function(obj, dsn, layer = NULL, ...,
 
 	ret = CPL_write_ogr(obj, dsn, layer, driver,
 		as.character(dataset_options), as.character(layer_options),
-		geom, dim, fids, quiet, update, delete_dsn, delete_layer)
+		geom, dim, fids, quiet, update, delete_dsn)
 	if (ret == 1) { # try through temp file:
 		tmp = tempfile(fileext = paste0(".", tools::file_ext(dsn))) # nocov start
 		if (!quiet)
 			message(paste("writing first to temporary file", tmp))
 		if (CPL_write_ogr(obj, tmp, layer, driver,
 				as.character(dataset_options), as.character(layer_options),
-				geom, dim, fids, quiet, update, delete_dsn, delete_layer) == 1)
+				geom, dim, fids, quiet, update, delete_dsn) == 1)
 			stop(paste("failed writing to temporary file", tmp))
-		if (!file.copy(tmp, dsn, overwrite = update || delete_dsn || delete_layer))
+		if (!file.copy(tmp, dsn, overwrite = update || delete_dsn))
 			stop(paste("copying", tmp, "to", dsn, "failed"))
 		if (!file.remove(tmp))
 			warning(paste("removing", tmp, "failed"))
@@ -459,8 +457,8 @@ st_write.data.frame <- function(obj, dsn, layer = NULL, ...) {
 
 #' @name st_write
 #' @export
-write_sf <- function(..., quiet = TRUE, delete_layer = TRUE) {
-	st_write(..., quiet = quiet, delete_layer = delete_layer)
+write_sf <- function(..., quiet = TRUE, update = FALSE) {
+	st_write(..., quiet = quiet, update = update)
 }
 
 #' Get GDAL drivers

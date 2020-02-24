@@ -152,7 +152,7 @@ void SetFields(OGRFeature *poFeature, std::vector<OGRFieldType> tp, Rcpp::List o
 int CPL_write_ogr(Rcpp::List obj, Rcpp::CharacterVector dsn, Rcpp::CharacterVector layer,
 	Rcpp::CharacterVector driver, Rcpp::CharacterVector dco, Rcpp::CharacterVector lco,
 	Rcpp::List geom, Rcpp::CharacterVector dim, Rcpp::CharacterVector fids,
-	bool quiet, Rcpp::LogicalVector update, bool delete_dsn = false, bool delete_layer = false) {
+	bool quiet, Rcpp::LogicalVector update, bool delete_dsn = false) {
 
 	// init:
 	if (driver.size() != 1 || dsn.size() != 1 || layer.size() != 1)
@@ -181,6 +181,7 @@ int CPL_write_ogr(Rcpp::List obj, Rcpp::CharacterVector dsn, Rcpp::CharacterVect
 	// data set:
 	GDALDataset *poDS; 
 
+	/*
 	// delete layer:
 	if (delete_layer && (poDS = (GDALDataset *) GDALOpenEx(dsn[0], GDAL_OF_VECTOR | GDAL_OF_UPDATE, 
 				drivers.data(), options.data(), NULL)) != NULL) { // don't complain if the layer is not present
@@ -207,6 +208,7 @@ int CPL_write_ogr(Rcpp::List obj, Rcpp::CharacterVector dsn, Rcpp::CharacterVect
 			Rcpp::Rcout << "Deleting layer `" << layer[0] << "' failed" << std::endl;
 		GDALClose(poDS);
 	}
+	*/
 	
 	// update ds:
 	if (update[0] == TRUE) { // and not NA_LOGICAL:
@@ -237,8 +239,7 @@ int CPL_write_ogr(Rcpp::List obj, Rcpp::CharacterVector dsn, Rcpp::CharacterVect
 			Rcpp::Rcout << "Dataset " <<  dsn[0] << 
 				" already exists: remove first, use update=TRUE to append, update=FALSE to replace," 
 				<< std::endl <<  
-				"delete_layer=TRUE to delete layer, or delete_dsn=TRUE " <<
-				"to remove the entire data source before writing." << std::endl;
+				"or delete_dsn=TRUE to remove the entire data source before writing." << std::endl;
 			Rcpp::stop("Dataset already exists.\n");
 		}
 		// create:
